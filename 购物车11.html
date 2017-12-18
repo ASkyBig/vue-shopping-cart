@@ -1,0 +1,230 @@
+<html>
+<head>
+	<title></title>
+	<style type="text/css">
+		[v-cloak] {
+		  display: none;
+		}
+		table {
+		  border: 1px soli #e9e9e9;
+		  border-collapse: collapse;
+		  border-spacing: 0;
+		  empty-cells: show;
+		}
+
+		th, td {
+		  padding: 8px 16px;
+		  border: 1px solid #e9e9e9;
+		  text-align: left;
+		}
+
+		th {
+		  background-color: #f7f7f7;
+		  color: #5c6b77;
+		  font-weight: 600;
+		  white-space: nowrap;
+		}
+	</style>
+</head>
+<body>
+	<div id="app" cloak>
+	  <template v-if="list.length">
+	  	<table>
+	  		<tbody v-for="(tableItem, tableIndex) in list" v-if="tableItem.productList.length">
+	  			<tr>
+		          <th><input type="checkbox" @click="handleTableItem(tableItem)" :checked="isCheckedTableItem(tableItem)">{{ tableItem.name }}</th>
+		          <th>序号</th>
+		          <th>商品名称</th>
+		          <th>商品单价</th>
+		          <th>购买数量</th>
+		          <th>操作</th>
+		        </tr>
+		        <tr v-for="(item, index) in tableItem.productList">
+		          <td><input type="checkbox" @click="handleChecked(item)" :checked="isChecked(item)"></td>
+		          <td>{{ index + 1 }}</td>
+		          <td>{{ item.name }}</td>
+		          <td>{{ item.price }}</td>
+		          <td>
+		            <button @click="handleReduce(item)" :disabled="item.count===1">-</button>
+		            {{ item.count }}
+		            <button @click="handleAdd(item)">+</button>
+		          </td>
+		          <td>
+		            <button @click="handleRemove(index, tableIndex)">移除</button>
+		          </td>
+		        </tr>
+	  		</tbody>
+	  	</table>
+	  	<div>
+	  		<input type="checkbox" @click="checkAll()" :checked="isCheckedAll()">全选
+	  	</div>	
+	    <div>总价：￥{{ totalPrice }}</div>
+	  </template>
+	  <div v-else>购物车为空</div>
+	</div>
+<script src="https://cdn.bootcss.com/vue/2.4.4/vue.js"></script>
+<script type="text/javascript">
+	var app = new Vue({
+		  el: '#app',
+		  data: {
+		    list: [
+		      {
+		      	name: "张三的小店",
+		      	productList: [
+			      	  {
+				        id: '1',
+				        name: 'iPhone 7',
+				        price: 6188,
+				        count: 1,
+				        status : 1
+				      },
+				      {
+				        id: '2',
+				        name: 'iPad Pro',
+				        price: 5188,
+				        count: 1,
+				        status : 1
+				      },
+				      {
+				        id: '3',
+				        name: 'MacBook Pro',
+				        price: 21488,
+				        count: 1,
+				        status : 1
+				      }
+		      		]
+				},
+				{
+		      	name: "李四的小店",
+		      	productList: [
+			      	  {
+				        id: '1',
+				        name: 'iPhone 7',
+				        price: 6188,
+				        count: 1,
+				        status : 1
+				      },
+				      {
+				        id: '2',
+				        name: 'iPad Pro',
+				        price: 5188,
+				        count: 1,
+				        status : 1
+				      },
+				      {
+				        id: '3',
+				        name: 'MacBook Pro',
+				        price: 21488,
+				        count: 1,
+				        status : 1
+				      }
+		      		]
+				},
+		      	{
+		      	name: "王麻子的小店",
+		      	productList: [
+			      	  {
+				        id: '1',
+				        name: 'iPhone 7',
+				        price: 6188,
+				        count: 1,
+				        status : 1
+				      },
+				      {
+				        id: '2',
+				        name: 'iPad Pro',
+				        price: 5188,
+				        count: 1,
+				        status : 1
+				      },
+				      {
+				        id: '3',
+				        name: 'MacBook Pro',
+				        price: 21488,
+				        count: 1,
+				        status : 1
+				      }
+		      		]
+				}
+		    ]
+		  },
+		  computed: {
+		    totalPrice: function() {
+		      var total = 0;
+		      for(var i = 0; i < this.list.length; i++) {
+		      	for(var j = 0; j < this.list[i].productList.length; j++) {
+		      		var item = this.list[i].productList[j];
+		      		if(item.status) {
+		      		 	total += item.price * item.count;
+		      		}
+		      	 }
+		      }
+		      return total != 0 ? total.toString().replace(/\B(?=(\d{3})+$)/g,',') : 0;
+		    }
+		  },
+		  methods: {
+		  	handleTableItem: function(tableItem) {
+		  		var status = this.isCheckedTableItem(tableItem);
+		  		status = status ? 0 : 1;
+		  		for(var i = 0; i < tableItem.productList.length; i++) {
+		  			tableItem.productList[i].status = status;
+		  		}
+		  	},
+		  	isCheckedTableItem: function(tableItem) {
+		  		//console.log("tableItem: " + tableItem)
+		  	
+		  		var status = true;
+		  		for(var i = 0; i < tableItem.productList.length; i++) {
+		  			if(!tableItem.productList[i].status) {
+		  				status = false;
+		  				return status;
+		  			}
+		  		}
+		  		return status;
+		  	},
+		  	//改变某条记录选中状态
+		  	handleChecked: function(item) {
+		  		item.status = !item.status;
+		  	},
+		    handleReduce: function(item) {
+		      if(item.count === 1) return;
+		      item.count--;
+		    },
+		    handleAdd: function(item) {
+		      item.count++;
+		    },
+		    handleRemove: function(index, tableIndex) {
+		      this.list[tableIndex].productList.splice(index, 1);
+		    },
+		  	isChecked: function(item) {
+		  		return item.status;
+		  	},
+	      	isCheckedAll: function() {
+	  			//列表全为true该status才为true，否则为false
+		  		var status = true;
+		  		for(var i = 0; i < this.list.length; i++) {
+		  			//一旦列表的status有一个为false则status就为false
+		  			for(var j = 0; j < this.list[i].productList.length; j++) {
+		  				if(!this.list[i].productList[j].status) {
+		  					status = false;
+		  					return status;
+		  				}
+		  			}
+		  		}
+		  		return status;
+	  		},
+		    checkAll: function() {
+		  		//拿到是否是全选
+		  		var status = this.isCheckedAll();
+		  		status = status ? 0 : 1;
+		  		for(var i = 0; i < this.list.length; i++) {
+		  			for(var j = 0; j < this.list[i].productList.length; j++) {
+		  				this.list[i].productList[j].status = status;
+		  			}
+		  		} 
+		  	}
+		  }
+		})
+</script>
+</body>
+</html>
